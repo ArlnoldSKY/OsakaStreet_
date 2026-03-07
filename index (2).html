@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Digital - Osaka Street</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .bg-merah { background-color: #e63946; }
+        .text-merah { color: #e63946; }
+        .nav-glass { background: rgba(230, 57, 70, 0.95); backdrop-filter: blur(10px); }
+        .page-content { display: none; animation: fadeIn 0.4s ease-out; }
+        .active-page { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        #mobile-menu { transition: transform 0.4s; transform: translateX(100%); }
+        #mobile-menu.open { transform: translateX(0); }
+        .rank1 { background: rgba(255, 215, 0, 0.1); }
+        .rank2 { background: rgba(192, 192, 192, 0.1); }
+        .rank3 { background: rgba(205, 127, 50, 0.1); }
+        .arrow-up { color: #22c55e; }
+        .arrow-down { color: #ef4444; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+    <nav class="fixed top-0 w-full z-50 nav-glass text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="showPage('home')">
+                <i class="fas fa-id-badge text-2xl text-yellow-300"></i>
+                <span class="font-bold text-lg tracking-tighter uppercase italic">Osaka Street</span>
+            </div>
+            <div class="hidden md:flex space-x-6 font-semibold text-[10px] tracking-widest">
+                <a href="javascript:void(0)" onclick="showPage('home')">BERANDA</a>
+                <a href="javascript:void(0)" onclick="showPage('absensi')">ABSENSI</a>
+                <a href="javascript:void(0)" onclick="showPage('anggota')">ANGGOTA</a>
+                <a href="javascript:void(0)" onclick="showPage('leaderboard')" class="text-yellow-300">LEADERBOARD</a>
+                <a href="javascript:void(0)" onclick="showPage('grafik')">GRAFIK</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleAdminBox()" class="hover:text-yellow-300 transition-all"><i class="fas fa-user-shield"></i></button>
+                <button class="md:hidden" onclick="toggleMobileMenu()"><i class="fas fa-bars text-2xl"></i></button>
+            </div>
+        </div>
+        <div id="loginBox" class="hidden absolute right-6 top-16 bg-white text-gray-800 p-5 rounded-2xl shadow-2xl w-64 border">
+            <h4 class="text-[10px] font-bold text-gray-400 mb-2 uppercase">Login Admin</h4>
+            <input id="userIn" type="text" placeholder="Admin" class="w-full p-2 mb-2 border rounded text-sm outline-none">
+            <input id="passIn" type="password" placeholder="Password" class="w-full p-2 mb-3 border rounded text-sm outline-none">
+            <button onclick="login()" class="w-full bg-merah text-white py-2 rounded font-bold text-xs">LOGIN</button>
+        </div>
+    </nav>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-black bg-opacity-95 z-[60] flex flex-col items-center justify-center space-y-8 text-xl font-bold text-white md:hidden">
+        <button onclick="toggleMobileMenu()" class="absolute top-6 right-6"><i class="fas fa-times"></i></button>
+        <a href="#" onclick="handleMobileNav('home')">BERANDA</a>
+        <a href="#" onclick="handleMobileNav('absensi')">ABSENSI</a>
+        <a href="#" onclick="handleMobileNav('anggota')">ANGGOTA</a>
+        <a href="#" onclick="handleMobileNav('leaderboard')">LEADERBOARD</a>
+    </div>
+
+    <main id="home" class="page-content active-page">
+        <section class="min-h-screen flex flex-col items-center justify-center text-center p-6 bg-merah text-white">
+            <h1 class="text-7xl font-black mb-4 italic tracking-tighter">OSAKA STREET</h1>
+            <p class="text-sm tracking-[0.5em] opacity-80 mb-10 uppercase">"MORE THAN A CLUB"</p>
+            <button onclick="showPage('absensi')" class="bg-white text-merah font-black py-4 px-12 rounded-full shadow-2xl hover:scale-105 transition">MULAI ABSENSI</button>
+        </section>
+    </main>
+
+    <main id="absensi" class="page-content pt-32 pb-16">
+        <div class="max-w-md mx-auto px-6">
+            <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                <div class="bg-gray-900 p-6 text-center text-white">
+                    <h2 class="font-bold uppercase tracking-widest text-sm">Form Kehadiran Digital</h2>
+                    <p id="liveDate" class="text-[10px] text-gray-400 mt-1"></p>
+                </div>
+                <form class="p-8 space-y-4">
+                    <select id="absensiNama" class="w-full p-3 border rounded-xl text-sm outline-none"></select>
+                    <select id="absensiStatus" class="w-full p-3 border rounded-xl text-sm outline-none">
+                        <option value="Hadir">Hadir</option>
+                        <option value="Izin">Izin</option>
+                        <option value="Sakit">Sakit</option>
+                    </select>
+                    <button type="button" onclick="submitAbsensi()" class="w-full bg-merah text-white font-bold py-4 rounded-xl shadow-lg">KIRIM DATA</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <main id="anggota" class="page-content pt-32 pb-16">
+        <div class="max-w-5xl mx-auto px-6">
+            <h2 class="text-3xl font-black text-center mb-10">REKAP <span class="text-merah">ABSENSI</span></h2>
+            
+            <div id="adminAddAnggota" class="hidden mb-6 p-6 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+                <div class="flex flex-col md:flex-row gap-3">
+                    <input id="newMemberNama" placeholder="Nama Anggota Baru" class="flex-1 p-3 border rounded-xl text-sm outline-none">
+                    <button onclick="addAnggotaDirect()" class="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase">Tambah Anggota</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-xl overflow-x-auto border border-gray-100">
+                <table class="w-full text-left min-w-[600px]">
+                    <thead class="bg-gray-50 text-[10px] uppercase font-bold text-gray-400">
+                        <tr>
+                            <th class="px-6 py-4">Nama Member</th>
+                            <th class="px-6 py-4 text-center">H</th>
+                            <th class="px-6 py-4 text-center">I</th>
+                            <th class="px-6 py-4 text-center">S</th>
+                            <th class="px-6 py-4 text-right">Update Terakhir</th>
+                            <th class="admin-only px-6 py-4 text-center hidden">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="anggotaTableBody" class="text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <main id="leaderboard" class="page-content pt-32 pb-16">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-3xl font-black text-center mb-10 italic">🏁 LEADERBOARD</h2>
+            <div class="bg-white rounded-3xl shadow-xl border overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-900 text-white text-[10px] uppercase">
+                        <tr>
+                            <th class="px-6 py-4 text-center">POS</th>
+                            <th class="px-6 py-4">Nama</th>
+                            <th class="px-6 py-4 text-center">Poin</th>
+                            <th class="admin-only px-6 py-4 text-center hidden">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody"></tbody>
+                </table>
+            </div>
+            <div id="adminPanel" class="hidden mt-6 bg-gray-900 p-6 rounded-3xl text-white">
+                <div class="flex justify-between items-center">
+                    <p class="text-xs font-bold text-yellow-400 uppercase tracking-widest">Admin Control Active</p>
+                    <button onclick="logout()" class="bg-red-500 px-4 py-2 rounded font-bold text-xs uppercase">Logout</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <main id="grafik" class="page-content pt-32 pb-16">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-black mb-10 uppercase tracking-widest">Statistik Absensi</h2>
+            <div class="bg-white p-10 rounded-3xl shadow-xl border">
+                <canvas id="mainChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let isAdmin = false;
+        let lastRank = {};
+        
+        let members = [
+            {name:"Franklin Carrington", points:51, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Rehan Prayoga", points:43, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Rose Elvelyn", points:41, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"David Louis", points:40, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Mara Daylont", points:38, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Niel Watson", points:38, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Curlz Angeliquez", points:36, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Chris Charles", points:36, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Ren Kurosuna", points:36, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Ahmad Chimaev", points:35, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Bilal Arnold", points:34, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Pablo Geza", points:30, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Rexxy Chazorla", points:25, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Hans Solbakken", points:23, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Zerry Coach", points:21, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Otoya Wazuki", points:21, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Arthur Wood", points:19, hadir:0, izin:0, sakit:0, lastUpdate:"-"},
+            {name:"Kenward Hodges", points:19, hadir:0, izin:0, sakit:0, lastUpdate:"-"}
+        ];
+
+        if(localStorage.osakaDBV2) members = JSON.parse(localStorage.osakaDBV2);
+
+        function showPage(id) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(id).classList.add('active-page');
+            if(id === 'absensi') {
+                populateDropdown();
+                document.getElementById('liveDate').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+            if(id === 'anggota') renderAnggota();
+            if(id === 'leaderboard') renderLeaderboard();
+            if(id === 'grafik') renderChart();
+        }
+
+        function toggleAdminBox() { document.getElementById('loginBox').classList.toggle('hidden'); }
+        function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+        function handleMobileNav(id) { showPage(id); toggleMobileMenu(); }
+
+        function login() {
+            if(document.getElementById('userIn').value === "admin" && document.getElementById('passIn').value === "osaka26") {
+                isAdmin = true;
+                document.getElementById('loginBox').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('adminAddAnggota').classList.remove('hidden');
+                document.querySelectorAll('.admin-only').forEach(e => e.classList.remove('hidden'));
+                renderAnggota();
+                renderLeaderboard();
+            } else { alert("Salah Password!"); }
+        }
+
+        function logout() { isAdmin = false; location.reload(); }
+
+        function populateDropdown() {
+            const select = document.getElementById('absensiNama');
+            select.innerHTML = '<option value="">-- Pilih Nama --</option>';
+            [...members].sort((a,b) => a.name.localeCompare(b.name)).forEach(m => {
+                select.innerHTML += `<option value="${m.name}">${m.name}</option>`;
+            });
+        }
+
+        function submitAbsensi() {
+            const name = document.getElementById('absensiNama').value;
+            const status = document.getElementById('absensiStatus').value;
+            if(!name) return alert("Pilih Nama!");
+
+            const now = new Date();
+            const timeString = now.toLocaleDateString('id-ID') + " " + now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+            const idx = members.findIndex(m => m.name === name);
+            
+            if(status === "Hadir") members[idx].hadir++;
+            else if(status === "Izin") members[idx].izin++;
+            else members[idx].sakit++;
+            
+            members[idx].lastUpdate = timeString;
+            save();
+            alert("Berhasil Absen pada " + timeString);
+            showPage('anggota');
+        }
+
+        function renderAnggota() {
+            const body = document.getElementById('anggotaTableBody');
+            body.innerHTML = "";
+            members.forEach((m, i) => {
+                body.innerHTML += `
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 font-bold text-gray-700">${m.name}</td>
+                    <td class="px-6 py-4 text-center text-green-600 font-bold">${m.hadir}</td>
+                    <td class="px-6 py-4 text-center text-blue-600 font-bold">${m.izin}</td>
+                    <td class="px-6 py-4 text-center text-red-600 font-bold">${m.sakit}</td>
+                    <td class="px-6 py-4 text-right text-[10px] text-gray-400 font-mono">${m.lastUpdate}</td>
+                    ${isAdmin ? `<td class="px-6 py-4 text-center">
+                        <button onclick="delP(${i})" class="text-red-500 hover:scale-110 transition"><i class="fas fa-trash"></i></button>
+                    </td>` : ''}
+                </tr>`;
+            });
+        }
+
+        function renderLeaderboard() {
+            const sorted = [...members].sort((a,b) => b.points - a.points);
+            const body = document.getElementById('leaderboardTableBody');
+            body.innerHTML = "";
+            sorted.forEach((m, i) => {
+                let style = i==0?'rank1':i==1?'rank2':i==2?'rank3':'';
+                let arrow = lastRank[m.name] !== undefined ? (lastRank[m.name] > i ? '<span class="arrow-up ml-1">↑</span>' : lastRank[m.name] < i ? '<span class="arrow-down ml-1">↓</span>' : '→') : '→';
+                lastRank[m.name] = i;
+
+                body.innerHTML += `
+                <tr class="${style} border-b border-gray-50 transition">
+                    <td class="px-6 py-4 text-center font-black">${i < 3 ? '🔥 '+(i+1) : i+1}</td>
+                    <td class="px-6 py-4 font-bold text-gray-700">${m.name} ${arrow}</td>
+                    <td class="px-6 py-4 text-center font-black text-merah">${m.points}</td>
+                    ${isAdmin ? `<td class="px-6 py-4 text-center">
+                        <button onclick="editPoinByName('${m.name}')" class="text-blue-500 hover:scale-110 transition"><i class="fas fa-edit"></i></button>
+                    </td>` : ''}
+                </tr>`;
+            });
+            save();
+        }
+
+        function addAnggotaDirect() {
+            const n = document.getElementById('newMemberNama').value;
+            if(!n) return alert("Isi nama anggota!");
+            if(members.some(m => m.name.toLowerCase() === n.toLowerCase())) return alert("Nama sudah ada!");
+            
+            members.push({name:n, points:0, hadir:0, izin:0, sakit:0, lastUpdate:"-"});
+            document.getElementById('newMemberNama').value = "";
+            save();
+            renderAnggota();
+            alert(n + " berhasil ditambahkan!");
+        }
+
+        function editPoinByName(name) {
+            const idx = members.findIndex(m => m.name === name);
+            let p = prompt("Poin baru untuk " + name + ":", members[idx].points);
+            if(p !== null) { members[idx].points = parseInt(p) || 0; renderLeaderboard(); }
+        }
+
+        function delP(i) {
+            if(confirm("Hapus " + members[i].name + " dari database?")) {
+                members.splice(i,1);
+                save();
+                renderAnggota();
+            }
+        }
+
+        function save() { localStorage.osakaDBV2 = JSON.stringify(members); }
+
+        let chartObj = null;
+        function renderChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            const h = members.reduce((s, m) => s + m.hadir, 0);
+            const i = members.reduce((s, m) => s + m.izin, 0);
+            const sk = members.reduce((s, m) => s + m.sakit, 0);
+            if(chartObj) chartObj.destroy();
+            chartObj = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['HADIR', 'IZIN', 'SAKIT'],
+                    datasets: [{ data: [h, i, sk], backgroundColor: ['#22c55e', '#3b82f6', '#e63946'], borderWidth: 0 }]
+                },
+                options: { cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+    </script>
+</body>
+</html>
